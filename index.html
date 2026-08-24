@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TicketX — Decentralized Event Ticketing</title>
+    <meta name="description" content="Purchase, view, and verify event tickets secured by the Ethereum blockchain. Fair, transparent, and scalper-resistant." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <div id="app">
+
+      <!-- ── NAVBAR ─────────────────────────────────────────────── -->
+      <nav class="navbar">
+        <div class="logo">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+          <h1>TicketX</h1>
+        </div>
+        <div class="nav-actions">
+          <div class="status-pill" id="statusPill">
+            <span class="dot disconnected"></span>
+            <span id="statusText">Disconnected</span>
+          </div>
+          <button id="connectBtn" class="btn primary-btn">Connect Wallet</button>
+        </div>
+      </nav>
+
+      <!-- ── HERO ───────────────────────────────────────────────── -->
+      <header class="hero">
+        <div class="hero-content">
+          <h2 class="hero-title">The Future of <span class="gradient-text">Event Ticketing</span></h2>
+          <p class="hero-subtitle">Secure, transparent, and fair ticketing powered by Ethereum.</p>
+
+          <div class="wallet-info hidden" id="walletInfo">
+            <div class="glass-card interactive wallet-card">
+              <div class="wallet-row">
+                <div>
+                  <p class="field-label">Connected Wallet</p>
+                  <p id="walletAddress" class="address mono">0x…</p>
+                </div>
+                <div class="wallet-meta" style="display:flex; gap:1rem; text-align:right;">
+                  <div>
+                    <p class="field-label">Network</p>
+                    <span id="networkName" class="network-badge">Unknown</span>
+                  </div>
+                  <div>
+                    <p class="field-label" style="opacity:0;">Admin</p>
+                    <button id="faucetBtn" class="btn outline-btn" title="Admin: Add 100 Test TIX" style="padding:0.2rem 0.6rem; font-size:0.75rem; border-color:var(--success-color); color:var(--success-color);">
+                      +100 TIX
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ── DAPP SECTION (tab shell, revealed on connect) ─────── -->
+      <section class="dapp-section hidden" id="dappSection">
+
+        <!-- Tab nav -->
+        <nav class="tab-nav" aria-label="DApp navigation">
+          <button class="tab-btn active" id="tab-mint-btn" data-tab="mint">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Mint Tickets
+          </button>
+          <button class="tab-btn" id="tab-mytickets-btn" data-tab="my-tickets">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            My Tickets
+          </button>
+          <button class="tab-btn" id="tab-verify-btn" data-tab="verify">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Verify Ticket
+          </button>
+          <button class="tab-btn" id="tab-stats-btn" data-tab="stats">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            Network Stats
+          </button>
+        </nav>
+
+        <!-- ── MINT PANEL ─────────────────────────────────────── -->
+        <div class="tab-panel active" id="panel-mint" role="tabpanel">
+          <div class="panel-header center">
+            <h2 class="panel-title">Select Your Ticket</h2>
+            <p class="panel-subtitle">Choose your tier and mint your NFT ticket on-chain.</p>
+          </div>
+          <!-- Wallet Balance Bar -->
+          <div class="balance-bar glass-card" id="mintBalanceBar" style="display:flex; align-items:center; justify-content:space-between; padding:0.75rem 1.25rem; margin-bottom:1.25rem; border:1px solid rgba(255,255,255,0.08);">
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              <span class="field-label" style="margin:0;">Wallet Balance</span>
+            </div>
+            <span id="mintWalletBalance" class="field-value mono" style="font-size:1rem; color:var(--text-primary);">— TIX</span>
+          </div>
+          <div class="ticket-grid">
+
+            <!-- General Admission -->
+            <div class="glass-card mint-card">
+              <div class="mint-card-badge badge-general">General</div>
+              <h3 class="mint-card-title">General Admission</h3>
+              <p class="mint-desc">Standard access to all main stages and public areas.</p>
+              <div class="ticket-preview general-preview">
+                <div class="ticket-visual general-visual">
+                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                  <span class="ticket-visual-label">GENERAL ADMISSION</span>
+                  <span class="ticket-price-label">0.01 TIX</span>
+                </div>
+              </div>
+              <button id="mintGeneralBtn" class="btn primary-btn full-width">Mint General — 0.01 TIX</button>
+              <p id="mintStatusGeneral" class="mint-status"></p>
+            </div>
+
+            <!-- VIP Pass -->
+            <div class="glass-card mint-card vip-card">
+              <div class="mint-card-badge badge-vip">★ VIP</div>
+              <h3 class="mint-card-title vip-text">VIP Pass</h3>
+              <p class="mint-desc">Premium access, backstage passes, and exclusive lounges.</p>
+              <div class="ticket-preview vip-preview">
+                <div class="ticket-visual vip-visual">
+                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="1.5" opacity="0.7"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                  <span class="ticket-visual-label" style="color:#facc15">VIP PREMIUM</span>
+                  <span class="ticket-price-label" style="color:#fbbf24">0.05 TIX</span>
+                </div>
+              </div>
+              <button id="mintVipBtn" class="btn vip-btn full-width">Mint VIP — 0.05 TIX</button>
+              <p id="mintStatusVip" class="mint-status"></p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Confirm Mint Modal -->
+        <div id="mintConfirmOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); z-index:999; align-items:center; justify-content:center;">
+          <div class="glass-card" style="max-width:380px; width:90%; padding:2rem; border:1px solid rgba(255,255,255,0.15); border-radius:16px; text-align:center;">
+            <div style="width:52px; height:52px; border-radius:50%; background:rgba(99,102,241,0.15); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3 style="font-size:1.15rem; margin-bottom:0.4rem;">Confirm Purchase</h3>
+            <p id="confirmModalDesc" style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem;">You are about to mint a ticket.</p>
+            <div style="background:rgba(0,0,0,0.2); border-radius:10px; padding:1rem; margin-bottom:1.5rem; text-align:left;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                <span class="field-label">Ticket Type</span>
+                <span id="confirmModalType" class="field-value">General</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                <span class="field-label">Cost</span>
+                <span id="confirmModalCost" class="field-value mono" style="color:var(--accent-color);">0.01 TIX</span>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span class="field-label">Your Balance</span>
+                <span id="confirmModalBalance" class="field-value mono">— TIX</span>
+              </div>
+            </div>
+            <div style="display:flex; gap:0.75rem;">
+              <button id="confirmModalCancel" class="btn outline-btn" style="flex:1;">Cancel</button>
+              <button id="confirmModalProceed" class="btn primary-btn" style="flex:1;">Confirm &amp; Mint</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── MY TICKETS PANEL ───────────────────────────────── -->
+        <div class="tab-panel" id="panel-my-tickets" role="tabpanel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">My Tickets</h2>
+              <p class="panel-subtitle">All NFT tickets owned by your connected wallet.</p>
+            </div>
+            <button id="refreshTicketsBtn" class="btn outline-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              Refresh
+            </button>
+          </div>
+
+          <div id="ticketsLoading" class="loading-state hidden">
+            <div class="spinner"></div>
+            <p>Loading your tickets…</p>
+          </div>
+
+          <div id="ticketsEmpty" class="empty-state hidden">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            <p>You don't own any tickets yet.</p>
+            <p class="empty-sub">Head over to <strong>Mint Tickets</strong> to get started!</p>
+          </div>
+
+          <div id="ticketsList" class="tickets-list"></div>
+        </div>
+
+        <!-- ── VERIFY PANEL ───────────────────────────────────── -->
+        <div class="tab-panel" id="panel-verify" role="tabpanel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Verify a Ticket</h2>
+              <p class="panel-subtitle">Enter any Token ID to confirm its authenticity and ownership on-chain.</p>
+            </div>
+          </div>
+
+          <div class="verify-form glass-card interactive">
+            <label for="verifyInput" class="input-label">Token ID</label>
+            <div class="input-row">
+              <input type="number" id="verifyInput" class="text-input" placeholder="e.g. 0" min="0" autocomplete="off" />
+              <button id="verifyBtn" class="btn primary-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Verify
+              </button>
+            </div>
+            <p id="verifyError" class="verify-error hidden"></p>
+          </div>
+
+          <div id="verifyResult" class="verify-result hidden">
+            <div class="result-card glass-card">
+
+              <div class="result-header">
+                <div class="verified-badge">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  Verified on-chain
+                </div>
+                <span id="resultTicketBadge" class="ticket-type-badge badge-general">General</span>
+              </div>
+
+              <div id="resultImageContainer" style="text-align: center; margin-bottom: 1.5rem; display: none;">
+                <img id="resultImage" src="" alt="Ticket NFT" style="max-width: 100%; max-height: 250px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 20px rgba(0,0,0,0.3);" />
+              </div>
+
+              <div class="result-fields">
+                <div class="result-field">
+                  <span class="field-label">Token ID</span>
+                  <div class="field-value-row">
+                    <span id="resultTokenId" class="field-value mono">—</span>
+                    <button class="copy-btn" data-copy-target="resultTokenId" title="Copy Token ID">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="result-field">
+                  <span class="field-label">Contract Address</span>
+                  <div class="field-value-row">
+                    <span id="resultContractAddr" class="field-value mono truncate-addr">—</span>
+                    <button class="copy-btn" data-copy-target="resultContractAddr" title="Copy Contract Address">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="result-field">
+                  <span class="field-label">Current Owner</span>
+                  <div class="field-value-row">
+                    <span id="resultOwner" class="field-value mono truncate-addr">—</span>
+                    <button class="copy-btn" data-copy-target="resultOwner" title="Copy Owner Address">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="result-field">
+                  <span class="field-label">Original Price</span>
+                  <span id="resultPrice" class="field-value">—</span>
+                </div>
+
+                <div class="result-field">
+                  <span class="field-label">Resale Status</span>
+                  <span id="resultResale" class="field-value">—</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- ── STATS PANEL ───────────────────────────────────── -->
+        <div class="tab-panel" id="panel-stats" role="tabpanel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Network Stats</h2>
+              <p class="panel-subtitle">Current status of the local blockchain network.</p>
+            </div>
+            <button id="refreshStatsBtn" class="btn outline-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              Refresh
+            </button>
+          </div>
+
+          <div class="glass-card" style="padding: 2rem; text-align: center; margin-top: 1rem;">
+            <div style="width:64px; height:64px; border-radius:50%; background:rgba(99,102,241,0.15); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem;">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            </div>
+            <h3 style="font-size:1.25rem; margin-bottom: 0.5rem; color: var(--text-primary);">Total Blocks Mined</h3>
+            <div id="statsBlockNumber" class="mono" style="font-size:3rem; font-weight:800; color:var(--accent-color); text-shadow: 0 0 20px rgba(99,102,241,0.4); margin-bottom: 1rem;">
+              --
+            </div>
+            <p style="color:var(--text-secondary); max-width: 400px; margin: 0 auto;">This is the total number of blocks registered on the connected blockchain network since genesis.</p>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Background blobs -->
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
